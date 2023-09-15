@@ -1,0 +1,46 @@
+body{
+    width: 100vw;
+    font-size: 14px;
+}
+
+.pageContainer{
+    display: grid;
+    grid-template: 1fr/ 1fr 8fr;
+    padding-left: 10rem;
+    padding-right: 10rem;
+    background-color:darkgray;
+}
+.nav{
+    grid-area:1 / 1 / 2 / 2;
+    min-height:80vh;
+    background-color:#464033;
+    display: flex;
+    flex-direction:column;
+    justify-content: space-between;
+    padding: 1rem;
+    padding-top:2rem;
+}
+.contentContainer{
+    grid-area: 1 / 2 / 2 / 3;
+    min-height:80vh;
+    background-color:#BBC4C2;
+    padding: 2rem;
+}
+
+.task{
+    display:flex;
+}
+.checkBox{
+    width: 1rem;
+    height: 1rem;
+    border: solid 2px green;
+}
+._completed > .checkBox{
+    border: none;
+    background-color: green;
+
+}
+._uncompleted > .checkBox{
+    background-color: white;
+    border: solid 2px green;
+}
