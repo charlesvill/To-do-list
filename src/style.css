@@ -23,12 +23,23 @@ body{
 .contentContainer{
     grid-area: 1 / 2 / 2 / 3;
     min-height:80vh;
+    display: flex;
+    flex-direction:column;
     background-color:#BBC4C2;
     padding: 2rem;
 }
-
+.section{
+    height: 10%;
+    background-color:white;
+    padding:3rem;
+    margin:.3rem;
+}
 .task{
     display:flex;
+    align-items: center;
+    align-content: space-between;
+    justify-content: flex-start;
+    gap: .5rem;
 }
 .checkBox{
     width: 1rem;
