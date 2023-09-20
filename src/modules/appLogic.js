@@ -1,4 +1,5 @@
 import {changeClass, elementBuilder, amendForm} from './DomManager.js';
+import {format, formatRelative, differenceInCalendarDays, isThisWeek} from 'date-fns';
 
 let tasksArr = new Array();
 let listCollection = new Object();
@@ -7,7 +8,8 @@ export function addTask (description, date, list, priority = "Low"){
 
     const taskIndex = generateTaskIndex();
     const taskCompleted = false;
-
+    console.log(`date being input is: ${date}`);
+    date = dateFormatting(date);
     const taskObj = {
         description: description,
         date: date,
@@ -18,8 +20,57 @@ export function addTask (description, date, list, priority = "Low"){
         type:"task",
     }
    tasksArr.push(taskObj);
-
+console.log(date);
     return taskObj;
+
+}
+
+function dateFormatting(date){
+    //first determine the number of days away from current to determine what method will be applied.
+    const currentDate = new Date();
+    const currentDateNoTime = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        currentDate.getDate()
+    );
+
+    const inputDate = new Date(`${date}T00:00`);
+
+
+
+
+
+
+    const inputDateNoTime = new Date(
+        inputDate.getFullYear(),
+        inputDate.getMonth(),
+        inputDate.getDate()
+    )
+
+
+    const daysTillDue = differenceInCalendarDays(inputDateNoTime, currentDateNoTime);
+
+    console.log(`current date is: ${currentDateNoTime}`);
+    console.log(`input date is ${inputDateNoTime}`);
+    console.log(daysTillDue);
+    if(daysTillDue > 1){
+        if(isThisWeek(new Date(date))){
+            return date = format(new Date(inputDateNoTime), 'eeee');
+        }else{
+            return date = format(new Date(inputDateNoTime), 'MM/dd/yy');
+        }
+        //if the date is beyond
+
+    }
+    else{
+        if(daysTillDue == 0){
+            return date = "Today";
+        }
+        else{
+            return date = "Tomorrow";
+        }
+    }
+
 
 }
 
