@@ -1,7 +1,8 @@
-import {changeClass, elementBuilder} from './DomManager.js';
+import {changeClass, elementBuilder, amendForm} from './DomManager.js';
 
 let tasksArr = new Array();
 let listCollection = new Object();
+
 export function addTask (description, date, list, priority = "Low"){
 
     const taskIndex = generateTaskIndex();
@@ -35,7 +36,7 @@ export function cycleTaskTix(index){
         changeClass(index, "_completed");
     }
     else{
-        console.log("cycle Tasktix in app logic broken lmao ");
+        console.log("cycle Tasktix in app logic broken lmao");
     }
 
     //this will call a function that adds obj to an array to be deleted at a certain date
@@ -55,7 +56,8 @@ export function makeListObj(listName, color = "none"){
     console.log(listCollection);
 
     return newListObj;
-    //needs to pass back to the DomManager something to tie the obj with the actual link to press
+    //what are we doing with this list collection? there needs to be a meaningful reason  for this to exist..
+
 }
 
 function generateTaskIndex(){
@@ -92,7 +94,7 @@ export function taskObjDist(context, selector){
         for(let i = 0; i < tasksArr.length; i++)
         {
             let currentObj = tasksArr[i];
-            if(currentObj.context === selector)
+            if(currentObj[`${context}`] === selector)
             {
                 //send signal to build that DOM Element
                 console.log("we have a hail mary!");
@@ -103,4 +105,15 @@ export function taskObjDist(context, selector){
     }
     //create an array
     //put in this array all
+}
+export function parseListCollection(domElement = null){
+    //if there is something specific, then it can take the argument and search and return that specifically, if not, it will return one individually until getting through all of them.
+    if(domElement !== null){
+        for (const name in listCollection)
+        {
+            amendForm("add", name, domElement);
+        }
+    }
+
+
 }

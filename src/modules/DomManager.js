@@ -1,11 +1,11 @@
-import {addTask,cycleTaskTix, makeListObj, taskObjDist} from "./appLogic.js";
+import {addTask,cycleTaskTix, makeListObj, taskObjDist, parseListCollection} from "./appLogic.js";
 
 var htmlBody = document.querySelector("body");
 var pageContainer = document.createElement('div');
 pageContainer.className = "pageContainer";
 var listContainer;
 var contentContainer;
-
+var currContext = "home";
 
 export default function loadPage(){
 
@@ -22,7 +22,21 @@ export default function loadPage(){
         </div>
     </div>
     <div class="contentContainer">
-        <div class="section phigh">
+
+    </div>
+    `;
+    //insert function here to fill the content container and append;
+    generateTaskLayout();
+    createTaskForm();
+    createListForm();
+}
+
+function generateTaskLayout(taskHeader = "Home"){
+    contentContainer = document.querySelector(".contentContainer");
+    contentContainer.innerHTML = "";
+    contentContainer.innerHTML =
+    `   <span>${taskHeader}</span>
+         <div class="section phigh">
 
         </div>
         <div class="section pmed">
@@ -32,35 +46,8 @@ export default function loadPage(){
 
         </div>
         <button class="addtaskbtn">+</button>
-    </div>
-
-    `
-    buildUI();
-
+    `;
 }
-
-function buildUI(){
-
-    createTaskForm();
-    createListForm();
-    const addTaskBtn = document.querySelector(".addtaskbtn");
-    addTaskBtn.addEventListener("click", ()=>{
-        openTaskForm();
-    });
-    const addListBtn = document.querySelector(".listbtn");
-    addListBtn.addEventListener("click", ()=>{
-       openListForm();
-
-    });
-
-
-}
-
-//cache some of the more important container DOM elements as variables:
-
-
-
-
 function createTaskForm(){
         contentContainer = document.querySelector(".contentContainer");
         const taskForm = document.createElement('div');
@@ -97,8 +84,11 @@ function createTaskForm(){
             e.preventDefault();
             closeTaskForm();
         })
+        const addTaskBtn = document.querySelector(".addtaskbtn");
+        addTaskBtn.addEventListener("click", ()=>{
+            openTaskForm();
+        });
     }
-
 
 function createListForm(){
         listContainer = document.querySelector(".listCont");
@@ -114,7 +104,7 @@ function createListForm(){
                         <div class="colorSelector" id="listColor">
                         </div>
                         <button type="submit" class="listSubmit">add</button><button id="listCancel">cancel</button>
-                    /form>
+                    </form>
                 </dialog>
         `
         const colorSelectorBtn = document.querySelector(".colorSelector");
@@ -143,9 +133,12 @@ function createListForm(){
             e.preventDefault();
             closeListForm();
         });
+        const addListBtn = document.querySelector(".listbtn");
+        addListBtn.addEventListener("click", ()=>{
+        openListForm();
+    });
 }
 function openTaskForm(){
-
     var taskDialog = document.getElementById("taskDialog");
     taskDialog.showModal();
 }
@@ -159,6 +152,22 @@ function openListForm(){
 function closeListForm(){
     listDialog.close();
 }
+function updateCurrContext(context){
+    currContext = context;
+}
+function filterTaskSubmits(list){
+    if (currContext !== "home"){
+        if(list == currContext){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+    else{
+        return true;
+    }
+}
 
 function submitTask(event){
     event.preventDefault();
@@ -166,23 +175,23 @@ function submitTask(event){
     const date = document.getElementById("dDate").value;
     const priority = document.getElementById("prioritySelect").value;
     const list = document.getElementById("list").value;
-
     const taskObj = addTask(description, date, list, priority);
-    elementBuilder(taskObj);
+
+    if(filterTaskSubmits(list)){
+        elementBuilder(taskObj);
+    }
     closeTaskForm();
 }
 
 function submitList(event){
-            event.preventDefault();
-            const listName = document.getElementById("listName").value;
-            const newList = makeListObj(listName);
-            //there might need to be a function call here to update the available list options on the form for list
-            elementBuilder(newList);
-            closeListForm();
+    event.preventDefault();
+    const listName = document.getElementById("listName").value;
+    const newList = makeListObj(listName);
+    elementBuilder(newList);
+    closeListForm();
 }
 
-export function elementBuilder(obj){
-
+export function elementBuilder(obj, taskContext = null){
    if(obj.type === "list")
    {
         const listElement = document.createElement("div");
@@ -193,20 +202,15 @@ export function elementBuilder(obj){
         listTxt.className = "listTxt";
         listElement.appendChild(listTxt);
         listTxt.textContent = obj.name;
-        //add the new list on the dropdown menu of the list form
         const form = document.getElementById("list");
         amendForm("add", obj.name, form);
         listElement.addEventListener("click", (e)=>{
-            //insert function to build the view for this specific list
-            console.log("you should be viewing the list on the DOM");
             projectsView(e);
         })
-        //make the list clickable and trigger the open list view
-
    }
    else if (obj.type === "task")
    {
-         let taskContainer;
+        let taskContainer;
         switch(obj.priority)
     {
         case 'Low':
@@ -220,12 +224,19 @@ export function elementBuilder(obj){
             break;
         default: console.log("something went wrong with selecting the container div");
     }
-    console.log(`the contents of priority is ${obj.priority}`);
     const task = document.createElement('div');
     taskContainer.appendChild(task);
-    task.className = "task";
-    task.dataset.index = `${obj.index}`;
 
+    let taskStatus;
+    if(obj.completed === true){
+         taskStatus = "_completed";
+    }
+    else{
+         taskStatus = "_uncompleted";
+    }
+
+    task.className = `task ${taskStatus}`;
+    task.dataset.index = `${obj.index}`;
     const checkBox = document.createElement('div');
     checkBox.className = "checkBox";
     const taskdesc = document.createElement('p');
@@ -267,50 +278,23 @@ export function changeClass(index, attribute){
     task.classList.add(`${attribute}`);
     console.log(`there should be a checklist of index ${index} changing to be ${attribute}`);
 }
-
 function projectsView(e){
-    //needs to display all the current projects for that list in the content container
-
-    //store reference to the content container
-    contentContainer = document.querySelector(".contentContainer");
-    contentContainer.innerHTML = "";
-    const projectCont = document.createElement("div");
     const projectName = e.currentTarget.dataset.name;
-    projectCont.className = "projListCont";
-    projectCont.innerHTML =
-    `
-    <span>${projectName}</span>
-    <div class="section phigh">
-
-    </div>
-    <div class="section pmed">
-
-    </div>
-    <div class="section plow">
-
-    </div>
-    `;
-    //function here to create the add task button but that it goes here in this list instead of giving the option to give a list category.
-
-    //request from applogic all the task objs for that list
-
-    //use elementbuilder to build all the tasks for this element recursively.
-
-    //might need to refactor the buildUI functon to make addTaskBtn a separate function to call for different page layouts
+    generateTaskLayout(projectName);
+    updateCurrContext(projectName);
+    createTaskForm();
     console.log(`list name is : ${projectName}`);
-    //passthrough to applogic the dataset.name for taskObjDist
     taskObjDist( "list",  projectName);
+    updateDroplist();
 }
-function amendForm(command, argument= "none", form)
+export function amendForm(command, argument= "none", form)
 {
     if (command === "add")
     {
-        //add
         const listOption = document.createElement("option");
         listOption.dataset.name = argument;
         listOption.textContent = argument;
         form.append(listOption);
-
     }
     else if (command === "remove")
     {
@@ -320,3 +304,10 @@ function amendForm(command, argument= "none", form)
         alert("something went wrong with the amendForm");
     }
 }
+function updateDroplist(){
+    //maybe this could take in argument the context so it can also provide what the pre selected option is...
+    const dropDownCont = document.getElementById("list");
+    parseListCollection(dropDownCont);
+
+}
+
