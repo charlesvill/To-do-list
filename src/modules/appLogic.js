@@ -3,9 +3,10 @@ import {format, formatRelative, differenceInCalendarDays, isThisWeek} from 'date
 
 let tasksArr = new Array();
 let listCollection = new Object();
+let currContext = "Home";
+let list;
 
 export function addTask (description, date, list, priority = "Low"){
-
     const taskIndex = generateTaskIndex();
     const taskCompleted = false;
     console.log(`date being input is: ${date}`);
@@ -35,11 +36,6 @@ function dateFormatting(date){
     );
 
     const inputDate = new Date(`${date}T00:00`);
-
-
-
-
-
 
     const inputDateNoTime = new Date(
         inputDate.getFullYear(),
@@ -72,6 +68,34 @@ function dateFormatting(date){
     }
 
 
+}
+
+export function updateCurrentContext(context, currList = null){
+    currContext = context;
+    list = currList;
+
+}
+export function filterTaskSubmits(obj){
+    switch(currContext)
+    {
+        case 'Home':
+            elementBuilder(obj);
+            break;
+        case 'List':
+            console.log(`list: ${list} and obj.list is : ${obj.list}`)
+            if(list === obj.list){
+                elementBuilder(obj);
+            }
+            break;
+        case 'Today':
+            if(obj.date === 'Today'){
+                elementBuilder(obj);
+            }
+            break;
+        case 'Upcoming':
+            //
+            break;
+    }
 }
 
 export function cycleTaskTix(index){
@@ -123,7 +147,7 @@ function generateTaskIndex(){
     }
 }
 
-export function taskObjDist(context, selector){
+export function taskObjDist(context, selector = null){
     switch(context)
     {
         case 'load_page':
@@ -134,7 +158,11 @@ export function taskObjDist(context, selector){
             iterator(selector);
             break;
         case 'today_view':
-            //dome somthing else
+            //sets context to date to look at the dates in obj
+            //call the today iterator and parse today's date in the form of 'yyyy-mm-dd'
+            //iterator will trigger the element builder if the dates are same
+
+            todayIterator();
             break;
         case 'upcoming_view':
             //do somthing else
@@ -154,8 +182,30 @@ export function taskObjDist(context, selector){
 
         }
     }
-    //create an array
-    //put in this array all
+    function todayIterator(){
+        //if date === '', skip that one
+        //call function for getting today's date in ISO standard form
+        for(let i = 0; i < tasksArr.length; i++)
+        {
+            let currentObj = tasksArr[i];
+            let objDateValue = currentObj.date;
+            if(objDateValue === ""){
+                continue;
+            }
+
+            console.log(`the objDateValue is: ${objDateValue}`);
+            if( objDateValue === 'Today')
+            {
+                //send signal to build that DOM Element
+                console.log("we have a hail mary!");
+                elementBuilder(currentObj);
+            }
+            else{
+                console.log(`this task was not today: ${objDateValue}`);
+            }
+
+        }
+    }
 }
 export function parseListCollection(domElement = null){
     //if there is something specific, then it can take the argument and search and return that specifically, if not, it will return one individually until getting through all of them.

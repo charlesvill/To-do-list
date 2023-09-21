@@ -1,11 +1,10 @@
-import {addTask,cycleTaskTix, makeListObj, taskObjDist, parseListCollection} from "./appLogic.js";
+import {addTask,cycleTaskTix, makeListObj, taskObjDist, parseListCollection, updateCurrentContext, filterTaskSubmits} from "./appLogic.js";
 
 var htmlBody = document.querySelector("body");
 var pageContainer = document.createElement('div');
 pageContainer.className = "pageContainer";
 var listContainer;
 var contentContainer;
-var currContext = "home";
 
 export default function loadPage(){
 
@@ -14,8 +13,12 @@ export default function loadPage(){
     pageContainer.innerHTML =
     `
     <div class="nav">
-        <button class="today">today</button>
-        <button class="upcoming">upcoming</button>
+        <div class="homeLink">
+            <div class="siteIcon">T</div>
+            <h2 class="siteName">Get-It-Done</h2>
+        </div>
+        <button class="todayLink">today</button>
+        <button class="upcomingLink">upcoming</button>
 
         <div class="listCont">
             <button class="listbtn">lists</button>
@@ -26,9 +29,28 @@ export default function loadPage(){
     </div>
     `;
     //insert function here to fill the content container and append;
+    createNavLinks();
     generateTaskLayout();
     createTaskForm();
     createListForm();
+    updateCurrentContext("Home");
+}
+
+function createNavLinks(){
+    const homeBtn = document.querySelector(".homeLink");
+    homeBtn.addEventListener("click", (e)=>{
+        homeView(e);
+    });
+
+    const todayBtn = document.querySelector(".todayLink");
+    todayBtn.addEventListener("click", (e)=>{
+        todayView(e);
+    });
+
+    const upcomingBtn = document.querySelector(".upcomingLink");
+    upcomingBtn.addEventListener("click", (e)=>{
+        upcomingView(e);
+    });
 }
 
 function generateTaskLayout(taskHeader = "Home"){
@@ -152,23 +174,6 @@ function openListForm(){
 function closeListForm(){
     listDialog.close();
 }
-function updateCurrContext(context){
-    currContext = context;
-}
-function filterTaskSubmits(list){
-    if (currContext !== "home"){
-        if(list == currContext){
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
-    else{
-        return true;
-    }
-}
-
 function submitTask(event){
     event.preventDefault();
     const description = document.getElementById("description").value;
@@ -177,9 +182,7 @@ function submitTask(event){
     const list = document.getElementById("list").value;
     const taskObj = addTask(description, date, list, priority);
 
-    if(filterTaskSubmits(list)){
-        elementBuilder(taskObj);
-    }
+    filterTaskSubmits(taskObj);
     closeTaskForm();
 }
 
@@ -281,11 +284,34 @@ export function changeClass(index, attribute){
 function projectsView(e){
     const projectName = e.currentTarget.dataset.name;
     generateTaskLayout(projectName);
-    updateCurrContext(projectName);
+    updateCurrentContext("List", projectName);
     createTaskForm();
     console.log(`list name is : ${projectName}`);
     taskObjDist( "list",  projectName);
     updateDroplist();
+}
+function todayView(e){
+    // refresh the conent container with all necessary infastructure
+    //call for taskObjDist passthrough today argument (taskObjDist will have to call filter for dates)
+    //call update droplist
+    generateTaskLayout("Today");
+    updateCurrentContext("Today");
+    createTaskForm();
+    console.log("the today view should be popping up");
+    taskObjDist("today_view");
+    updateDroplist();
+}
+function upcomingView(e){
+    //same as above and below for the first step
+    //call for taskObjDist passthrough the upcoming_view
+    //call update droplist
+    updateCurrentContext("Upcoming");
+}
+function homeView(e){
+    //refresh the content container with all necessary infastructure
+    //call for taskOBJ pass context 'home'
+    //call fr update droplist
+    updateCurrentContext("Home");
 }
 export function amendForm(command, argument= "none", form)
 {
