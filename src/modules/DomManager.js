@@ -1,4 +1,4 @@
-import {addTask,cycleTaskTix, makeListObj, taskObjDist, parseListCollection, updateCurrentContext, filterTaskSubmits} from "./appLogic.js";
+import {addTask,cycleTaskTix, makeListObj, taskObjDist, parseListCollection, updateCurrentContext, filterTaskSubmits, taskSortByDate} from "./appLogic.js";
 
 var htmlBody = document.querySelector("body");
 var pageContainer = document.createElement('div');
@@ -247,8 +247,9 @@ export function elementBuilder(obj, taskContext = null){
     taskdesc.textContent = obj.description;
     const dueDate = document.createElement("span");
     dueDate.className = "tdueDate";
-    dueDate.textContent = obj.date;
-
+    dueDate.textContent = obj.f_date;
+    console.log(obj.date);
+    console.log(obj.f_date);
     task.appendChild(checkBox);
     task.appendChild(taskdesc);
     task.appendChild(dueDate);
@@ -305,13 +306,21 @@ function upcomingView(e){
     //same as above and below for the first step
     //call for taskObjDist passthrough the upcoming_view
     //call update droplist
+    generateTaskLayout("Upcoming");
     updateCurrentContext("Upcoming");
+    createTaskForm();
+    taskObjDist("upcoming_view");
+    updateDroplist();
 }
 function homeView(e){
     //refresh the content container with all necessary infastructure
     //call for taskOBJ pass context 'home'
     //call fr update droplist
+    generateTaskLayout("Home");
     updateCurrentContext("Home");
+    createTaskForm();
+    taskObjDist("home");
+    updateDroplist();
 }
 export function amendForm(command, argument= "none", form)
 {

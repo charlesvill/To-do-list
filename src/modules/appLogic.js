@@ -1,5 +1,5 @@
 import {changeClass, elementBuilder, amendForm} from './DomManager.js';
-import {format, formatRelative, differenceInCalendarDays, isThisWeek} from 'date-fns';
+import {format, formatRelative, differenceInCalendarDays, isThisWeek, compareAsc} from 'date-fns';
 
 let tasksArr = new Array();
 let listCollection = new Object();
@@ -9,11 +9,15 @@ let list;
 export function addTask (description, date, list, priority = "Low"){
     const taskIndex = generateTaskIndex();
     const taskCompleted = false;
+    let formattedDate;
     console.log(`date being input is: ${date}`);
-    date = dateFormatting(date);
+    if(date !== ""){
+        formattedDate = dateFormatting(date);
+    }
     const taskObj = {
         description: description,
         date: date,
+        f_date: formattedDate,
         list: list,
         priority: priority,
         index: taskIndex,
@@ -88,7 +92,7 @@ export function filterTaskSubmits(obj){
             }
             break;
         case 'Today':
-            if(obj.date === 'Today'){
+            if(obj.f_date === 'Today'){
                 elementBuilder(obj);
             }
             break;
@@ -150,62 +154,111 @@ function generateTaskIndex(){
 export function taskObjDist(context, selector = null){
     switch(context)
     {
-        case 'load_page':
-            //do something
+        case 'home':
+            //take off the filters and pass through all the objects
+            iterator();
             break;
         case 'list':
             console.log("will begin to search for matches");
-            iterator(selector);
+            iterator();
             break;
         case 'today_view':
-            //sets context to date to look at the dates in obj
-            //call the today iterator and parse today's date in the form of 'yyyy-mm-dd'
-            //iterator will trigger the element builder if the dates are same
-
             todayIterator();
             break;
         case 'upcoming_view':
-            //do somthing else
+            upcomingIterator();
+            // the dates in the array will need to be sorted
+            //also could I have used filter for adding the specific task views
             break;
         default: console.log("something went wrong with task object distributor");
     }
-    function iterator(selector){
+    function iterator(){
         for(let i = 0; i < tasksArr.length; i++)
         {
             let currentObj = tasksArr[i];
-            if(currentObj[`${context}`] === selector)
+
+            if(selector = null){
+                elementBuilder(currentObj);
+            }
+            else(currentObj[`${context}`] === selector)
             {
                 //send signal to build that DOM Element
                 console.log("we have a hail mary!");
                 elementBuilder(currentObj);
             }
-
         }
     }
     function todayIterator(){
-        //if date === '', skip that one
-        //call function for getting today's date in ISO standard form
         for(let i = 0; i < tasksArr.length; i++)
         {
             let currentObj = tasksArr[i];
-            let objDateValue = currentObj.date;
-            if(objDateValue === ""){
+            if(currentObj.f_date === ""){
                 continue;
             }
 
-            console.log(`the objDateValue is: ${objDateValue}`);
-            if( objDateValue === 'Today')
+            if( currentObj.f_date === 'Today')
             {
                 //send signal to build that DOM Element
                 console.log("we have a hail mary!");
                 elementBuilder(currentObj);
             }
             else{
-                console.log(`this task was not today: ${objDateValue}`);
+                console.log(`this task was not today: ${currentObj.date}`);
             }
 
         }
     }
+    function upcomingIterator(){
+        const sortedArr = taskSortByDate();
+        for(let i = 0; i < tasksArr.length; i++)
+        {
+            let currentObj = sortedArr[i];
+            if(currentObj.date === ""){
+                continue;
+            }
+            else if( currentObj.f_date === 'Today')
+            {
+                console.log(`this task was not today: ${curentObj.date}`);
+            }
+            else
+            {
+                 //send signal to build that DOM Element
+                console.log("we have a hail mary!");
+                elementBuilder(currentObj);
+            }
+        }
+    }
+}
+
+
+export function taskSortByDate(){
+    //should be immutable
+    //takes the current array of obj and makes a copy of it sorted
+    let changes;
+    let sortArr = new Array();
+    sortArr = tasksArr;
+    let tempArr = new Array();
+
+    while (changes !== 0){
+
+        changes = 0;
+
+        for(let i = 0; i < sortArr.length - 1; i++)
+        {
+            let date_a = new Date(`${sortArr[i].date}T00:00`);
+            let date_b = new Date(`${sortArr[i+1].date}T00:00`);
+
+            if(compareAsc(date_a, date_b) === 1){
+                //if a is later than b then a & b switch
+                tempArr[i] = sortArr[i + 1];
+                tempArr[i+1] = sortArr[i];
+                sortArr[i] = tempArr[i];
+                sortArr[i+1] = tempArr[i+1];
+                changes++;
+            }
+        }
+    }
+    return sortArr;
 }
 export function parseListCollection(domElement = null){
     //if there is something specific, then it can take the argument and search and return that specifically, if not, it will return one individually until getting through all of them.
