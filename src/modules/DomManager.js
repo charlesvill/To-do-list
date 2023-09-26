@@ -232,27 +232,27 @@ export function elementBuilder(obj, taskContext = null){
 
     let taskStatus;
     if(obj.completed === true){
-         taskStatus = "_completed";
+         taskStatus = '_completed';
     }
     else{
-         taskStatus = "_uncompleted";
+         taskStatus = '_uncompleted';
     }
 
     task.className = `task ${taskStatus}`;
     task.dataset.index = `${obj.index}`;
     const checkBox = document.createElement('div');
-    checkBox.className = "checkBox";
+    checkBox.className = 'checkBox';
     const taskdesc = document.createElement('p');
-    taskdesc.className = "taskText";
+    taskdesc.className = 'taskText';
     taskdesc.textContent = obj.description;
-    const dueDate = document.createElement("span");
-    dueDate.className = "tdueDate";
+    const dueDate = document.createElement('span');
+    dueDate.className = 'tdueDate';
     dueDate.textContent = obj.f_date;
     task.appendChild(checkBox);
     task.appendChild(taskdesc);
     task.appendChild(dueDate);
 
-    checkBox.addEventListener("click",(event)=>{
+    checkBox.addEventListener('click',(event)=>{
         taskclix(event);
     });
    }
@@ -263,7 +263,7 @@ export function elementBuilder(obj, taskContext = null){
 
 function taskclix(event){
     const parent = event.currentTarget.parentElement;
-    const index = parent.getAttribute("data-index");
+    const index = parent.getAttribute('data-index');
    cycleTaskTix(index);
 }
 
@@ -280,37 +280,37 @@ export function changeClass(index, attribute){
 function projectsView(e){
     const projectName = e.currentTarget.dataset.name;
     generateTaskLayout(projectName);
-    updateCurrentContext("List", projectName);
+    updateCurrentContext('List', projectName);
     createTaskForm();
-    taskObjDist( "list",  projectName);
+    taskObjDist( 'list',  projectName);
     updateDroplist();
 }
 function todayView(e){
-    generateTaskLayout("Today");
-    updateCurrentContext("Today");
+    generateTaskLayout('Today');
+    updateCurrentContext('Today');
     createTaskForm();
-    taskObjDist("today_view");
+    taskObjDist('today_view');
     updateDroplist();
 }
 function upcomingView(e){
-    generateTaskLayout("Upcoming");
-    updateCurrentContext("Upcoming");
+    generateTaskLayout('Upcoming');
+    updateCurrentContext('Upcoming');
     createTaskForm();
-    taskObjDist("upcoming_view");
+    taskObjDist('upcoming_view');
     updateDroplist();
 }
 function homeView(e){
-    generateTaskLayout("Home");
-    updateCurrentContext("Home");
+    generateTaskLayout('Home');
+    updateCurrentContext('Home');
     createTaskForm();
-    taskObjDist("home");
+    taskObjDist('home');
     updateDroplist();
 }
 export function amendForm(command, argument= "none", form)
 {
-    if (command === "add")
+    if (command === 'add')
     {
-        const listOption = document.createElement("option");
+        const listOption = document.createElement('option');
         listOption.dataset.name = argument;
         listOption.textContent = argument;
         form.append(listOption);
@@ -320,7 +320,7 @@ export function amendForm(command, argument= "none", form)
     }
 }
 function updateDroplist(){
-    const dropDownCont = document.getElementById("list");
+    const dropDownCont = document.getElementById('list');
     parseListCollection(dropDownCont);
 }
 
