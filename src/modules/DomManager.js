@@ -28,7 +28,6 @@ export default function loadPage(){
 
     </div>
     `;
-    //insert function here to fill the content container and append;
     createNavLinks();
     generateTaskLayout();
     createTaskForm();
@@ -249,8 +248,6 @@ export function elementBuilder(obj, taskContext = null){
     const dueDate = document.createElement("span");
     dueDate.className = "tdueDate";
     dueDate.textContent = obj.f_date;
-    console.log(obj.date);
-    console.log(obj.f_date);
     task.appendChild(checkBox);
     task.appendChild(taskdesc);
     task.appendChild(dueDate);
@@ -267,13 +264,11 @@ export function elementBuilder(obj, taskContext = null){
 function taskclix(event){
     const parent = event.currentTarget.parentElement;
     const index = parent.getAttribute("data-index");
-   //pass through the index to the applogic cycletasktix
    cycleTaskTix(index);
 }
 
 function applyColor(event){
     const color = event.currentTarget.element.classList[1];
-    console.log(`the color to be applied is ${color}`);
     return color;
 }
 
@@ -281,32 +276,23 @@ export function changeClass(index, attribute){
     const task = document.querySelector(`[data-index='${index}']`);
     task.classList.remove(task.classList[1]);
     task.classList.add(`${attribute}`);
-    console.log(`there should be a checklist of index ${index} changing to be ${attribute}`);
 }
 function projectsView(e){
     const projectName = e.currentTarget.dataset.name;
     generateTaskLayout(projectName);
     updateCurrentContext("List", projectName);
     createTaskForm();
-    console.log(`list name is : ${projectName}`);
     taskObjDist( "list",  projectName);
     updateDroplist();
 }
 function todayView(e){
-    // refresh the conent container with all necessary infastructure
-    //call for taskObjDist passthrough today argument (taskObjDist will have to call filter for dates)
-    //call update droplist
     generateTaskLayout("Today");
     updateCurrentContext("Today");
     createTaskForm();
-    console.log("the today view should be popping up");
     taskObjDist("today_view");
     updateDroplist();
 }
 function upcomingView(e){
-    //same as above and below for the first step
-    //call for taskObjDist passthrough the upcoming_view
-    //call update droplist
     generateTaskLayout("Upcoming");
     updateCurrentContext("Upcoming");
     createTaskForm();
@@ -314,9 +300,6 @@ function upcomingView(e){
     updateDroplist();
 }
 function homeView(e){
-    //refresh the content container with all necessary infastructure
-    //call for taskOBJ pass context 'home'
-    //call fr update droplist
     generateTaskLayout("Home");
     updateCurrentContext("Home");
     createTaskForm();
@@ -332,18 +315,12 @@ export function amendForm(command, argument= "none", form)
         listOption.textContent = argument;
         form.append(listOption);
     }
-    else if (command === "remove")
-    {
-        //remove
-    }
     else{
         alert("something went wrong with the amendForm");
     }
 }
 function updateDroplist(){
-    //maybe this could take in argument the context so it can also provide what the pre selected option is...
     const dropDownCont = document.getElementById("list");
     parseListCollection(dropDownCont);
-
 }
 

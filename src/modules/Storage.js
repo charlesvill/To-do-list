@@ -14,8 +14,6 @@ export default function Storage(){
         const tasksObj = retrieveTasksObj();
         const arr = tasksObj.array;
         arr.push(obj);
-        console.log(arr);
-        console.log(typeof(arr));
         localStorage.setItem('tasksArr', JSON.stringify(tasksObj));
     }
     function deleteFromTasksArr(){
@@ -24,25 +22,17 @@ export default function Storage(){
     function syncTaskChanges(tasksArr){
         const taskObj = JSON.parse(localStorage.getItem('tasksArr'));
         taskObj.array = tasksArr;
-        console.log(taskObj.array);
         localStorage.setItem('tasksArr', JSON.stringify(taskObj));
-
     }
     function addToListCollection(obj){
         const list = retrieveListCollection();
         list[`${obj.name}`] = obj;
-        console.log(list);
         localStorage.setItem('listCollection', JSON.stringify(list));
     }
     function deleteFromListCollection(){
-
+        //will get called on a task click and should remove from the local storage.
+        //on a refresh the item should no longer be there
     }
-    //method to pull the list collection obj
-    //method to update the tasks array push to it
-    //method to delete an obj from the tasks arr
-    //method to update the listCollection
-    //methd to delete a member from the listCollection
-    //method to check if there is present storage, create one if not
     function localStoragePresent(){
         if(!localStorage.getItem('listCollection') &&
             !localStorage.getItem('tasksArr'))
@@ -60,8 +50,6 @@ export default function Storage(){
         }
         localStorage.setItem('listCollection', JSON.stringify(new Object()));
         localStorage.setItem('tasksArr', JSON.stringify(taskObj));
-        console.log(localStorage.getItem('listCollection'));
-        console.log(localStorage.getItem('tasksArr'));
     }
 
     return {localStoragePresent, buildLocalStorageData, addToListCollection, retrieveListCollection, retrieveTasksArr, addToTasksArr, syncTaskChanges}

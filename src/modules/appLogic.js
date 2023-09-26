@@ -34,7 +34,6 @@ export function addTask (description, date, list, priority = "Low"){
     const taskIndex = generateTaskIndex();
     const taskCompleted = false;
     let formattedDate;
-    console.log(`date being input is: ${date}`);
     if(date !== ""){
         formattedDate = dateFormatting(date);
     }
@@ -48,13 +47,11 @@ export function addTask (description, date, list, priority = "Low"){
         completed: taskCompleted,
         type:"task",
     }
-    //here instead of adding to the array, call the method from storage to get this shit handled there.
     storage.addToTasksArr(taskObj);
     return taskObj;
 }
 
 function dateFormatting(date){
-    //first determine the number of days away from current to determine what method will be applied.
     const currentDate = new Date();
     const currentDateNoTime = new Date(
         currentDate.getFullYear(),
@@ -63,27 +60,20 @@ function dateFormatting(date){
     );
 
     const inputDate = new Date(`${date}T00:00`);
-
     const inputDateNoTime = new Date(
         inputDate.getFullYear(),
         inputDate.getMonth(),
         inputDate.getDate()
     )
 
-
     const daysTillDue = differenceInCalendarDays(inputDateNoTime, currentDateNoTime);
 
-    console.log(`current date is: ${currentDateNoTime}`);
-    console.log(`input date is ${inputDateNoTime}`);
-    console.log(daysTillDue);
     if(daysTillDue > 1){
         if(isThisWeek(new Date(date))){
             return date = format(new Date(inputDateNoTime), 'eeee');
         }else{
             return date = format(new Date(inputDateNoTime), 'MM/dd/yy');
         }
-        //if the date is beyond
-
     }
     else{
         if(daysTillDue == 0){
@@ -93,14 +83,11 @@ function dateFormatting(date){
             return date = "Tomorrow";
         }
     }
-
-
 }
 
 export function updateCurrentContext(context, currList = null){
     currContext = context;
     list = currList;
-
 }
 export function filterTaskSubmits(obj){
     switch(currContext)
@@ -109,7 +96,6 @@ export function filterTaskSubmits(obj){
             elementBuilder(obj);
             break;
         case 'List':
-            console.log(`list: ${list} and obj.list is : ${obj.list}`)
             if(list === obj.list){
                 elementBuilder(obj);
             }
@@ -120,15 +106,14 @@ export function filterTaskSubmits(obj){
             }
             break;
         case 'Upcoming':
-            //
+            if(obj.f_date !== 'Today'){
+                elementBuilder(obj);
+            }
             break;
     }
 }
 
 export function cycleTaskTix(index){
-    //takes the index and extracts the obj from the array and gets the checked status and sees if its completed or not
-    //this is broken at the moment
-    console.log("there should be a task clix rn");
     const tasksArr = storage.retrieveTasksArr();
     const obj = tasksArr[index];
     if(obj.completed === true){
@@ -138,16 +123,12 @@ export function cycleTaskTix(index){
     }
     else if(obj.completed === false){
         obj.completed = true;
-        console.log(obj.completed);
         storage.syncTaskChanges(tasksArr);
         changeClass(index, "_completed");
     }
     else{
         console.log("cycle Tasktix in app logic broken lmao");
     }
-
-    //this will call a function that adds obj to an array to be deleted at a certain date
-
 }
 
 export function makeListObj(listName, color = "none"){
@@ -164,13 +145,12 @@ export function makeListObj(listName, color = "none"){
 function generateTaskIndex(){
     const tasksArr = storage.retrieveTasksArr();
     const length = tasksArr.length;
-    let index;
 
     if (length === 0){
-        return index = 0;
+        return 0;
     }
     else{
-        return index = length;
+        return length;
     }
 }
 
@@ -180,12 +160,9 @@ export function taskObjDist(context, selector = null){
     switch(context)
     {
         case 'home':
-            //take off the filters and pass through all the objects
-            console.log("there should be some tasks for home being developed");
             iterator();
             break;
         case 'list':
-            console.log("will begin to search for matches");
             iterator();
             break;
         case 'today_view':
@@ -193,8 +170,6 @@ export function taskObjDist(context, selector = null){
             break;
         case 'upcoming_view':
             upcomingIterator();
-            // the dates in the array will need to be sorted
-            //also could I have used filter for adding the specific task views
             break;
         default: console.log("something went wrong with task object distributor");
     }
@@ -204,13 +179,12 @@ export function taskObjDist(context, selector = null){
         {
             let currentObj = tasksArr[i];
 
-            if(selector === null){
+            if(selector === null)
+            {
                 elementBuilder(currentObj);
             }
             else if(currentObj[`${context}`] === selector)
             {
-                //send signal to build that DOM Element
-                console.log("we have a hail mary!");
                 elementBuilder(currentObj);
             }
         }
@@ -225,8 +199,6 @@ export function taskObjDist(context, selector = null){
 
             if( currentObj.f_date === 'Today')
             {
-                //send signal to build that DOM Element
-                console.log("we have a hail mary!");
                 elementBuilder(currentObj);
             }
             else{
@@ -249,8 +221,6 @@ export function taskObjDist(context, selector = null){
             }
             else
             {
-                 //send signal to build that DOM Element
-                console.log("we have a hail mary!");
                 elementBuilder(currentObj);
             }
         }
@@ -260,7 +230,6 @@ export function taskObjDist(context, selector = null){
 
 
 export function tasksSortByDate(){
-    //takes the current array of obj and makes a copy of it sorted
     let changes;
     let sortArr = new Array();
     sortArr = storage.retrieveTasksArr();
@@ -305,6 +274,4 @@ export function parseListCollection(domElement = null){
             amendForm("add", name, domElement);
         }
     }
-
-
 }
