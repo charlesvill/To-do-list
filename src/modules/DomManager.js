@@ -1,4 +1,4 @@
-import {addTask,cycleTaskTix, makeListObj, taskObjDist, parseListCollection, updateCurrentContext, filterTaskSubmits, taskSortByDate} from "./appLogic.js";
+import {addTask,cycleTaskTix, makeListObj, taskObjDist, parseListCollection, updateCurrentContext, filterTaskSubmits, taskSortByDate, initializeLogic} from "./appLogic.js";
 
 var htmlBody = document.querySelector("body");
 var pageContainer = document.createElement('div');
@@ -7,7 +7,7 @@ var listContainer;
 var contentContainer;
 
 export default function loadPage(){
-
+    console.log("this is a hello world from the dom manager!");
     htmlBody.appendChild(pageContainer);
 
     pageContainer.innerHTML =
@@ -34,6 +34,7 @@ export default function loadPage(){
     createTaskForm();
     createListForm();
     updateCurrentContext("Home");
+    initializeLogic();
 }
 
 function createNavLinks(){

@@ -1,10 +1,34 @@
 import {changeClass, elementBuilder, amendForm} from './DomManager.js';
-import {format, formatRelative, differenceInCalendarDays, isThisWeek, compareAsc} from 'date-fns';
+import {format, differenceInCalendarDays, isThisWeek, compareAsc} from 'date-fns';
+import Storage from './Storage.js';
 
-let tasksArr = new Array();
-let listCollection = new Object();
 let currContext = "Home";
 let list;
+const storage = Storage();
+
+export function initializeLogic(){
+    if(!storage.localStoragePresent()){
+    console.log("we have no local storage!");
+    storage.buildLocalStorageData();
+
+}
+else{
+    console.log("we already have local storage data!");
+    popListfromStorage();
+    popTasksfromStorage();
+}
+}
+
+function popListfromStorage(){
+    const list = storage.retrieveListCollection();
+    for (const elements in list)
+    {
+        elementBuilder(list[elements])
+    }
+}
+function popTasksfromStorage(){
+    taskObjDist('home');
+}
 
 export function addTask (description, date, list, priority = "Low"){
     const taskIndex = generateTaskIndex();
@@ -24,10 +48,9 @@ export function addTask (description, date, list, priority = "Low"){
         completed: taskCompleted,
         type:"task",
     }
-   tasksArr.push(taskObj);
-console.log(date);
+    //here instead of adding to the array, call the method from storage to get this shit handled there.
+    storage.addToTasksArr(taskObj);
     return taskObj;
-
 }
 
 function dateFormatting(date){
@@ -104,14 +127,19 @@ export function filterTaskSubmits(obj){
 
 export function cycleTaskTix(index){
     //takes the index and extracts the obj from the array and gets the checked status and sees if its completed or not
+    //this is broken at the moment
+    console.log("there should be a task clix rn");
+    const tasksArr = storage.retrieveTasksArr();
     const obj = tasksArr[index];
     if(obj.completed === true){
         obj.completed = false;
+        storage.syncTaskChanges(tasksArr);
         changeClass(index, "_uncompleted");
     }
     else if(obj.completed === false){
         obj.completed = true;
         console.log(obj.completed);
+        storage.syncTaskChanges(tasksArr);
         changeClass(index, "_completed");
     }
     else{
@@ -129,17 +157,12 @@ export function makeListObj(listName, color = "none"){
         type: "list",
     }
 
-    listCollection[`${listName}`] = newListObj;
-    console.log(`the new obj was ${newListObj}, and the collection looks like: ${listCollection}`);
-    console.log(newListObj);
-    console.log(listCollection);
-
+    storage.addToListCollection(newListObj);
     return newListObj;
-    //what are we doing with this list collection? there needs to be a meaningful reason  for this to exist..
-
 }
 
 function generateTaskIndex(){
+    const tasksArr = storage.retrieveTasksArr();
     const length = tasksArr.length;
     let index;
 
@@ -152,10 +175,13 @@ function generateTaskIndex(){
 }
 
 export function taskObjDist(context, selector = null){
+    const tasksArr = storage.retrieveTasksArr();
+
     switch(context)
     {
         case 'home':
             //take off the filters and pass through all the objects
+            console.log("there should be some tasks for home being developed");
             iterator();
             break;
         case 'list':
@@ -172,15 +198,16 @@ export function taskObjDist(context, selector = null){
             break;
         default: console.log("something went wrong with task object distributor");
     }
+
     function iterator(){
         for(let i = 0; i < tasksArr.length; i++)
         {
             let currentObj = tasksArr[i];
 
-            if(selector = null){
+            if(selector === null){
                 elementBuilder(currentObj);
             }
-            else(currentObj[`${context}`] === selector)
+            else if(currentObj[`${context}`] === selector)
             {
                 //send signal to build that DOM Element
                 console.log("we have a hail mary!");
@@ -209,7 +236,7 @@ export function taskObjDist(context, selector = null){
         }
     }
     function upcomingIterator(){
-        const sortedArr = taskSortByDate();
+        const sortedArr = tasksSortByDate();
         for(let i = 0; i < tasksArr.length; i++)
         {
             let currentObj = sortedArr[i];
@@ -218,7 +245,7 @@ export function taskObjDist(context, selector = null){
             }
             else if( currentObj.f_date === 'Today')
             {
-                console.log(`this task was not today: ${curentObj.date}`);
+                console.log(`this task was not today: ${currentObj.date}`);
             }
             else
             {
@@ -231,13 +258,23 @@ export function taskObjDist(context, selector = null){
 }
 
 
-export function taskSortByDate(){
-    //should be immutable
+
+export function tasksSortByDate(){
     //takes the current array of obj and makes a copy of it sorted
     let changes;
     let sortArr = new Array();
-    sortArr = tasksArr;
+    sortArr = storage.retrieveTasksArr();
     let tempArr = new Array();
+    let noDateArr = new Array();
+
+    //check the array for any empty dates
+    for(let i = 0; i < sortArr.length; i++)
+    {
+        if(sortArr[i].date === ''){
+            noDateArr.push(sortArr[i]);
+            sortArr.splice(i, 1);
+        }
+    }
 
     while (changes !== 0){
 
@@ -258,11 +295,11 @@ export function taskSortByDate(){
             }
         }
     }
-    return sortArr;
+    return noDateArr.concat(sortArr);
 }
 export function parseListCollection(domElement = null){
-    //if there is something specific, then it can take the argument and search and return that specifically, if not, it will return one individually until getting through all of them.
     if(domElement !== null){
+        const listCollection = storage.retrieveListCollection();
         for (const name in listCollection)
         {
             amendForm("add", name, domElement);
