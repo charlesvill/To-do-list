@@ -1,39 +1,42 @@
 import {
-  format, differenceInCalendarDays, isThisWeek, compareAsc,
-} from 'date-fns';
-import { changeClass, elementBuilder, amendForm } from './DomManager.js';
-import Storage from './Storage.js';
+  format,
+  differenceInCalendarDays,
+  isThisWeek,
+  compareAsc,
+} from "date-fns";
+import { changeClass, elementBuilder, amendForm } from "./DomManager.js";
+import Storage from "./Storage";
 
-let currContext = 'Home';
+let currContext = "Home";
 let list;
 const storage = Storage();
 
 export function initializeLogic() {
   if (!storage.localStoragePresent()) {
-    console.log('we have no local storage!');
+    console.log("we have no local storage!");
     storage.buildLocalStorageData();
   } else {
-    console.log('we already have local storage data!');
+    console.log("we already have local storage data!");
     popListfromStorage();
     popTasksfromStorage();
   }
 }
 
 function popListfromStorage() {
-  const list = storage.retrieveListCollection();
+  list = storage.retrieveListCollection();
   for (const elements in list) {
     elementBuilder(list[elements]);
   }
 }
 function popTasksfromStorage() {
-  taskObjDist('home');
+  taskObjDist("home");
 }
 
-export function addTask(description, date, list, priority = 'Low') {
+export function addTask(description, date, list, priority = "Low") {
   const taskIndex = generateTaskIndex();
   const taskCompleted = false;
   let formattedDate;
-  if (date !== '') {
+  if (date !== "") {
     formattedDate = dateFormatting(date);
   }
   const taskObj = {
@@ -44,7 +47,7 @@ export function addTask(description, date, list, priority = 'Low') {
     priority,
     index: taskIndex,
     completed: taskCompleted,
-    type: 'task',
+    type: "task",
   };
   storage.addToTasksArr(taskObj);
   return taskObj;
@@ -65,20 +68,23 @@ function dateFormatting(date) {
     inputDate.getDate(),
   );
 
-  const daysTillDue = differenceInCalendarDays(inputDateNoTime, currentDateNoTime);
+  const daysTillDue = differenceInCalendarDays(
+    inputDateNoTime,
+    currentDateNoTime,
+  );
 
   if (daysTillDue > 1) {
     if (isThisWeek(new Date(date))) {
-      return date = format(new Date(inputDateNoTime), 'eeee');
+      return (date = format(new Date(inputDateNoTime), "eeee"));
     }
-    return date = format(new Date(inputDateNoTime), 'MM/dd/yy');
+    return (date = format(new Date(inputDateNoTime), "MM/dd/yy"));
   }
 
   if (daysTillDue === 0) {
-    return date = 'Today';
+    return (date = "Today");
   }
 
-  return date = 'Tomorrow';
+  return (date = "Tomorrow");
 }
 
 export function updateCurrentContext(context, currList = null) {
@@ -87,21 +93,21 @@ export function updateCurrentContext(context, currList = null) {
 }
 export function filterTaskSubmits(obj) {
   switch (currContext) {
-    case 'Home':
+    case "Home":
       elementBuilder(obj);
       break;
-    case 'List':
+    case "List":
       if (list === obj.list) {
         elementBuilder(obj);
       }
       break;
-    case 'Today':
-      if (obj.f_date === 'Today') {
+    case "Today":
+      if (obj.f_date === "Today") {
         elementBuilder(obj);
       }
       break;
-    case 'Upcoming':
-      if (obj.f_date !== 'Today') {
+    case "Upcoming":
+      if (obj.f_date !== "Today") {
         elementBuilder(obj);
       }
       break;
@@ -114,21 +120,21 @@ export function cycleTaskTix(index) {
   if (obj.completed === true) {
     obj.completed = false;
     storage.syncTaskChanges(tasksArr);
-    changeClass(index, '_uncompleted');
+    changeClass(index, "_uncompleted");
   } else if (obj.completed === false) {
     obj.completed = true;
     storage.syncTaskChanges(tasksArr);
-    changeClass(index, '_completed');
+    changeClass(index, "_completed");
   } else {
-    console.log('cycle Tasktix in app logic broken lmao');
+    console.log("cycle Tasktix in app logic broken lmao");
   }
 }
 
-export function makeListObj(listName, color = 'none') {
+export function makeListObj(listName, color = "none") {
   const newListObj = {
     name: listName,
     color,
-    type: 'list',
+    type: "list",
   };
 
   storage.addToListCollection(newListObj);
@@ -150,19 +156,20 @@ export function taskObjDist(context, selector = null) {
   const tasksArr = storage.retrieveTasksArr();
 
   switch (context) {
-    case 'home':
+    case "home":
       iterator();
       break;
-    case 'list':
+    case "list":
       iterator();
       break;
-    case 'today_view':
+    case "today_view":
       todayIterator();
       break;
-    case 'upcoming_view':
+    case "upcoming_view":
       upcomingIterator();
       break;
-    default: console.log('something went wrong with task object distributor');
+    default:
+      console.log("something went wrong with task object distributor");
   }
 
   function iterator() {
@@ -179,11 +186,11 @@ export function taskObjDist(context, selector = null) {
   function todayIterator() {
     for (let i = 0; i < tasksArr.length; i++) {
       const currentObj = tasksArr[i];
-      if (currentObj.f_date === '') {
+      if (currentObj.f_date === "") {
         continue;
       }
 
-      if (currentObj.f_date === 'Today') {
+      if (currentObj.f_date === "Today") {
         elementBuilder(currentObj);
       } else {
         console.log(`this task was not today: ${currentObj.date}`);
@@ -194,9 +201,9 @@ export function taskObjDist(context, selector = null) {
     const sortedArr = tasksSortByDate();
     for (let i = 0; i < tasksArr.length; i++) {
       const currentObj = sortedArr[i];
-      if (currentObj.date === '') {
+      if (currentObj.date === "") {
         continue;
-      } else if (currentObj.f_date === 'Today') {
+      } else if (currentObj.f_date === "Today") {
         console.log(`this task was not today: ${currentObj.date}`);
       } else {
         elementBuilder(currentObj);
@@ -214,7 +221,7 @@ export function tasksSortByDate() {
 
   // check the array for any empty dates
   for (let i = 0; i < sortArr.length; i++) {
-    if (sortArr[i].date === '') {
+    if (sortArr[i].date === "") {
       noDateArr.push(sortArr[i]);
       sortArr.splice(i, 1);
     }
@@ -243,7 +250,7 @@ export function parseListCollection(domElement = null) {
   if (domElement !== null) {
     const listCollection = storage.retrieveListCollection();
     for (const name in listCollection) {
-      amendForm('add', name, domElement);
+      amendForm("add", name, domElement);
     }
   }
 }
