@@ -7,6 +7,8 @@ import {
   updateCurrentContext,
   filterTaskSubmits,
   initializeLogic,
+  getListInfo,
+  deleteListObj,
 } from "./appLogic.js";
 
 const htmlBody = document.querySelector("body");
@@ -126,6 +128,27 @@ function createTaskForm() {
     openTaskForm();
   });
 }
+function applyColor(e){
+  // get reference to the actual color that was chosen from the classlist
+  const colorChoice = e.currentTarget.getAttribute("data-color");
+  console.log("ther should be some shit happening her. ");
+  // set the second class name of color selector to
+  const colorSelector = document.getElementById("listColor");
+  if (colorSelector.classList.length > 1){
+    colorSelector.classList.remove(
+      colorSelector.classList[1]);
+
+      colorSelector.classList.add(colorChoice);
+  }
+  else{
+    colorSelector.classList.add(colorChoice);
+  }
+}
+
+function getTaskColor(listName){
+  const list = getListInfo(listName);
+  return list.color;
+}
 
 function createListForm() {
   listContainer = document.querySelector(".listCont");
@@ -148,19 +171,26 @@ function createListForm() {
   colorSelectorBtn.addEventListener("click", () => {
     colorSelectorBtn.innerHTML = `
             <div class="colorBox">
-              <div class="color green"></div>
-              <div class="color yellow"></div>
-              <div class="color red"></div>
-              <div class="color orange"></div>
-              <div class="color purple"></div>
-              <div class="color magenta"></div>
+              <div class="color green" data-color="#4EC33D"></div>
+              <div class="color yellow" data-color="#ECF87F"></div>
+              <div class="color red" data-color="#C5104F"></div>
+              <div class="color orange" data-color="#E86B17"></div>
+              <div class="color purple" data-color="#381741"></div>
+              <div class="color magenta" data-color="#FF00FF"></div>
             </div>
             `;
+    initializeColorSelect();
   }, {once: true});
-  const colorpicker = document.querySelectorAll(".color");
-  colorpicker.forEach((element) => {
-    element.addEventListener("click", applyColor);
-  });
+
+  function initializeColorSelect(){
+    const colorpicker = document.querySelectorAll(".color");
+    colorpicker.forEach((element) => {
+    element.addEventListener("click", (e)=>{
+      applyColor(e);
+    });
+  }, {once: true});
+  }
+
   const submitListBtn = document.querySelector(".listForm");
 
   submitListBtn.addEventListener("submit", (e) => {
@@ -205,7 +235,13 @@ function submitTask(event) {
 function submitList(event) {
   event.preventDefault();
   const listName = document.getElementById("listName").value;
-  const newList = makeListObj(listName);
+  const colorSelector = document.getElementById("listColor");
+  let color = "none";
+  if(colorSelector.classList.length > 1){
+    [ , color] = colorSelector.classList;
+  }
+
+  const newList = makeListObj(listName, color);
   elementBuilder(newList);
   closeListForm();
 }
@@ -213,18 +249,40 @@ function submitList(event) {
 export function elementBuilder(obj, taskContext = null) {
   if (obj.type === "list") {
     const listElement = document.createElement("div");
+    const form = document.getElementById("list");
+    const listTxt = document.createElement("p");
+    const listColor = document.createElement("div");
+    const removeButton = document.createElement("button");
+
     listElement.className = "listItem";
     listElement.dataset.name = `${obj.name}`;
-    listContainer.appendChild(listElement);
-    const listTxt = document.createElement("p");
     listTxt.className = "listTxt";
+    removeButton.className = "rmList";
+
+    listContainer.appendChild(listElement);
+    listElement.appendChild(listColor);
     listElement.appendChild(listTxt);
+    listElement.appendChild(removeButton);
+
     listTxt.textContent = obj.name;
-    const form = document.getElementById("list");
+    listColor.style.backgroundColor = `${obj.color}`;
+    removeButton.style.display = 'none';
+    removeButton.textContent = 'x';
     amendForm("add", obj.name, form);
+
     listElement.addEventListener("click", (e) => {
       projectsView(e);
     });
+    listElement.addEventListener("mouseover", ()=>{
+      removeButton.style.display = 'inline-block';
+    });
+    listElement.addEventListener("mouseout", ()=>{
+      removeButton.style.display = 'none';
+    });
+    removeButton.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      removeList(e);
+    })
   } else if (obj.type === "task") {
     let taskContainer;
     switch (obj.priority) {
@@ -252,17 +310,28 @@ export function elementBuilder(obj, taskContext = null) {
 
     task.className = `task ${taskStatus}`;
     task.dataset.index = `${obj.index}`;
+
     const checkBox = document.createElement("div");
-    checkBox.className = "checkBox";
+    const dueDate = document.createElement("span");
     const taskdesc = document.createElement("p");
+    const taskColor = document.createElement("div");
+    const color = getTaskColor(obj.list);
+
+    checkBox.className = "checkBox";
     taskdesc.className = "taskText";
     taskdesc.textContent = obj.description;
-    const dueDate = document.createElement("span");
     dueDate.className = "tdueDate";
     dueDate.textContent = obj.f_date;
+    taskColor.className = "taskColor";
+    taskColor.style.backgroundColor = `${color}`;
+
+    // would need to pull from list storage the listobj.color
+
     task.appendChild(checkBox);
     task.appendChild(taskdesc);
     task.appendChild(dueDate);
+    task.appendChild(taskColor);
+
 
     checkBox.addEventListener("click", (event) => {
       taskclix(event);
@@ -271,6 +340,16 @@ export function elementBuilder(obj, taskContext = null) {
     console.log("someshit went wrong with DomList maker");
   }
 }
+function removeList(e){
+  const list = e.currentTarget.parentElement;
+  const lName = list.querySelector("p").textContent;
+  console.log(lName);
+  console.log(typeof(lName));
+  list.remove();
+  // send message to the storage to remove list
+  deleteListObj(lName);
+
+}
 
 function taskclix(event) {
   const parent = event.currentTarget.parentElement;
@@ -278,10 +357,6 @@ function taskclix(event) {
   cycleTaskTix(index);
 }
 
-function applyColor(event) {
-  const color = event.currentTarget.element.classList[1];
-  return color;
-}
 
 export function changeClass(index, attribute) {
   const task = document.querySelector(`[data-index='${index}']`);
@@ -296,21 +371,21 @@ function projectsView(e) {
   taskObjDist("list", projectName);
   updateDroplist();
 }
-function todayView(e) {
+function todayView() {
   generateTaskLayout("Today");
   updateCurrentContext("Today");
   createTaskForm();
   taskObjDist("today_view");
   updateDroplist();
 }
-function upcomingView(e) {
+function upcomingView() {
   generateTaskLayout("Upcoming");
   updateCurrentContext("Upcoming");
   createTaskForm();
   taskObjDist("upcoming_view");
   updateDroplist();
 }
-function homeView(e) {
+function homeView() {
   generateTaskLayout("Home");
   updateCurrentContext("Home");
   createTaskForm();

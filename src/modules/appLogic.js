@@ -22,6 +22,11 @@ export function initializeLogic() {
   }
 }
 
+export function getListInfo(list){
+  const listCollection = storage.retrieveListCollection();
+  return listCollection[list];
+}
+
 function popListfromStorage() {
   list = storage.retrieveListCollection();
   for (const elements in list) {
@@ -111,6 +116,8 @@ export function filterTaskSubmits(obj) {
         elementBuilder(obj);
       }
       break;
+    default:
+      alert("something went wrong with filterTaskSubmits");
   }
 }
 
@@ -130,7 +137,7 @@ export function cycleTaskTix(index) {
   }
 }
 
-export function makeListObj(listName, color = "none") {
+export function makeListObj(listName, color) {
   const newListObj = {
     name: listName,
     color,
@@ -253,4 +260,11 @@ export function parseListCollection(domElement = null) {
       amendForm("add", name, domElement);
     }
   }
+}
+
+export function deleteListObj(listName){
+  storage.rmListCollection(listName);
+}
+export function deleteTaskObj(taskIndex){
+  storage.rmTasksArr(taskIndex);
 }

@@ -1,5 +1,5 @@
 export default function Storage() {
-  //method to pull the tasks array
+  // method to pull the tasks array
   function retrieveTasksArr() {
     const obj = JSON.parse(localStorage.getItem("tasksArr"));
     return obj.array;
@@ -16,20 +16,31 @@ export default function Storage() {
     arr.push(obj);
     localStorage.setItem("tasksArr", JSON.stringify(tasksObj));
   }
-  function deleteFromTasksArr() {}
   function syncTaskChanges(tasksArr) {
-    const taskObj = JSON.parse(localStorage.getItem("tasksArr"));
+    const taskObj = retrieveTasksObj;
     taskObj.array = tasksArr;
     localStorage.setItem("tasksArr", JSON.stringify(taskObj));
   }
+  function syncListChanges(listCollection){
+    localStorage.setItem("listCollection", JSON.stringify(listCollection));
+  }
+  function rmTasksArr(taskIndex){
+    const tasksArr = retrieveTasksArr();
+    tasksArr.splice(taskIndex, 1);
+    // make sure to sync the changes
+    syncTaskChanges(tasksArr);
+  }
+
   function addToListCollection(obj) {
     const list = retrieveListCollection();
     list[`${obj.name}`] = obj;
     localStorage.setItem("listCollection", JSON.stringify(list));
   }
-  function deleteFromListCollection() {
-    //will get called on a task click and should remove from the local storage.
-    //on a refresh the item should no longer be there
+  function rmListCollection(listName) {
+    const list = retrieveListCollection();
+    delete list[listName];
+    // make sure to sync changes
+    syncListChanges(list);
   }
   function localStoragePresent() {
     if (
@@ -37,9 +48,8 @@ export default function Storage() {
       !localStorage.getItem("tasksArr")
     ) {
       return false;
-    } else {
-      return true;
     }
+      return true;
   }
 
   function buildLocalStorageData() {
@@ -58,5 +68,8 @@ export default function Storage() {
     retrieveTasksArr,
     addToTasksArr,
     syncTaskChanges,
+    rmListCollection,
+    rmTasksArr,
+
   };
 }

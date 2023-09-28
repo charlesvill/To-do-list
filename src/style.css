@@ -132,12 +132,28 @@ button:hover{
   opacity: 1;
 }
 .listItem{
+  display: flex;
+  gap: .5rem;
+  align-items: center;
   font-size: .9rem;
-  margin:0;
+  margin:.5rem;
 }
 .listItem:hover{
   font-weight: bold;
   cursor: pointer;
+}
+.listTxt{
+  margin: 0;
+}
+.listItem > div{
+  width: .5rem;
+  height: 1rem;
+  border-top-right-radius: 12px;
+  border-top-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  border-bottom-left-radius: 12px;
+  margin:0;
+
 }
 .listForm{
   display: flex;
@@ -190,6 +206,10 @@ button:hover{
   width: 2rem;
   height: 2rem;
   z-index: 1000;
+  border: solid 2px transparent;
+}
+.color:hover{
+  border-color: whitesmoke;
 }
 .green{
   background-color: #4EC33D;
@@ -243,4 +263,8 @@ button:hover{
 ._uncompleted > .checkBox {
   background-color: white;
   border: solid 2px green;
+}
+.taskColor{
+  width: .5rem;
+  height: 1rem;
 }
