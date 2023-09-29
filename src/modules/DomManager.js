@@ -9,6 +9,8 @@ import {
   initializeLogic,
   getListInfo,
   deleteListObj,
+  deleteTaskObj,
+  listTaskRemover,
 } from "./appLogic.js";
 
 const htmlBody = document.querySelector("body");
@@ -316,6 +318,7 @@ export function elementBuilder(obj, taskContext = null) {
     const taskdesc = document.createElement("p");
     const taskColor = document.createElement("div");
     const color = getTaskColor(obj.list);
+    const taskRemoveBtn = document.createElement("button");
 
     checkBox.className = "checkBox";
     taskdesc.className = "taskText";
@@ -324,18 +327,28 @@ export function elementBuilder(obj, taskContext = null) {
     dueDate.textContent = obj.f_date;
     taskColor.className = "taskColor";
     taskColor.style.backgroundColor = `${color}`;
-
-    // would need to pull from list storage the listobj.color
+    taskRemoveBtn.textContent = 'x';
+    taskRemoveBtn.style.display = 'none';
 
     task.appendChild(checkBox);
     task.appendChild(taskdesc);
     task.appendChild(dueDate);
     task.appendChild(taskColor);
+    task.appendChild(taskRemoveBtn);
 
-
+    task.addEventListener("mouseover", ()=>{
+      taskRemoveBtn.style.display = 'inline-block';
+    })
+    task.addEventListener("mouseout", ()=>{
+      taskRemoveBtn.style.display = 'none';
+    })
     checkBox.addEventListener("click", (event) => {
       taskclix(event);
     });
+    taskRemoveBtn.addEventListener("click", (e)=>{
+      removeTask(e);
+    })
+
   } else {
     console.log("someshit went wrong with DomList maker");
   }
@@ -346,8 +359,21 @@ function removeList(e){
   console.log(lName);
   console.log(typeof(lName));
   list.remove();
+  // updateDroplist good for adding but not for deleting
+  updateDroplist("remove", lName);
   // send message to the storage to remove list
   deleteListObj(lName);
+  const context = listTaskRemover(lName);
+  generateTaskLayout(context);
+  taskObjDist(context);
+  // send signal to delete all list with the matching name
+}
+function removeTask(e){
+  const task = e.currentTarget.parentElement;
+  const {index} = task.dataset;
+  task.remove();
+  deleteTaskObj(index);
+
 
 }
 
@@ -402,7 +428,14 @@ export function amendForm(command, argument = "none", form) {
     alert("something went wrong with the amendForm");
   }
 }
-function updateDroplist() {
+function updateDroplist(command = "add", listName = "null") {
   const dropDownCont = document.getElementById("list");
-  parseListCollection(dropDownCont);
+  if(command === "add"){
+    parseListCollection(dropDownCont);
+  }
+  else{
+      const dropDownOption = dropDownCont.querySelector(
+        `[data-name="${listName}"]`);
+      dropDownOption.remove();
+  }
 }

@@ -218,6 +218,10 @@ export function taskObjDist(context, selector = null) {
     }
   }
 }
+export function listTaskRemover(listName){
+  storage.removeListTasks(listName);
+  return currContext;
+}
 
 export function tasksSortByDate() {
   let changes;

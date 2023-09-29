@@ -16,9 +16,16 @@ export default function Storage() {
     arr.push(obj);
     localStorage.setItem("tasksArr", JSON.stringify(tasksObj));
   }
+  function removeListTasks(listName){
+    const tasksArr = retrieveTasksArr();
+    const filterArr = tasksArr.filter((obj) => obj.list !== listName);
+    syncTaskChanges(filterArr);
+  }
   function syncTaskChanges(tasksArr) {
-    const taskObj = retrieveTasksObj;
+    const taskObj = retrieveTasksObj();
     taskObj.array = tasksArr;
+    console.log(taskObj.array);
+    console.log(taskObj);
     localStorage.setItem("tasksArr", JSON.stringify(taskObj));
   }
   function syncListChanges(listCollection){
@@ -70,6 +77,7 @@ export default function Storage() {
     syncTaskChanges,
     rmListCollection,
     rmTasksArr,
+    removeListTasks,
 
   };
 }
