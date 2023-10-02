@@ -23,11 +23,17 @@ export default function Storage() {
   }
   function syncTaskChanges(tasksArr) {
     const taskObj = retrieveTasksObj();
-    taskObj.array = tasksArr;
+    const newIndexArr = tasksArr.map((obj, objIndex) =>
+      // Create a new object with the updated index
+      ({ ...obj, index: objIndex })
+    );
+    console.log(newIndexArr);
+    taskObj.array = newIndexArr;
     console.log(taskObj.array);
     console.log(taskObj);
     localStorage.setItem("tasksArr", JSON.stringify(taskObj));
   }
+
   function syncListChanges(listCollection){
     localStorage.setItem("listCollection", JSON.stringify(listCollection));
   }

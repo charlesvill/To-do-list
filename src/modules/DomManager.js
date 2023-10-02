@@ -148,8 +148,11 @@ function applyColor(e){
 }
 
 function getTaskColor(listName){
-  const list = getListInfo(listName);
-  return list.color;
+ if(listName === "None"){
+  return listName;
+ }
+ const list = getListInfo(listName);
+ return list.color;
 }
 
 function createListForm() {
@@ -326,7 +329,9 @@ export function elementBuilder(obj, taskContext = null) {
     dueDate.className = "tdueDate";
     dueDate.textContent = obj.f_date;
     taskColor.className = "taskColor";
-    taskColor.style.backgroundColor = `${color}`;
+    if(color !== "None"){
+       taskColor.style.backgroundColor = `${color}`;
+    }
     taskRemoveBtn.textContent = 'x';
     taskRemoveBtn.style.display = 'none';
 
@@ -353,6 +358,7 @@ export function elementBuilder(obj, taskContext = null) {
     console.log("someshit went wrong with DomList maker");
   }
 }
+
 function removeList(e){
   const list = e.currentTarget.parentElement;
   const lName = list.querySelector("p").textContent;
@@ -363,9 +369,10 @@ function removeList(e){
   updateDroplist("remove", lName);
   // send message to the storage to remove list
   deleteListObj(lName);
-  const context = listTaskRemover(lName);
-  generateTaskLayout(context);
-  taskObjDist(context);
+  listTaskRemover(lName);
+  generateTaskLayout("Home");
+  taskObjDist("home");
+  createTaskForm();
   // send signal to delete all list with the matching name
 }
 function removeTask(e){
@@ -424,8 +431,6 @@ export function amendForm(command, argument = "none", form) {
     listOption.dataset.name = argument;
     listOption.textContent = argument;
     form.append(listOption);
-  } else {
-    alert("something went wrong with the amendForm");
   }
 }
 function updateDroplist(command = "add", listName = "null") {
@@ -434,8 +439,13 @@ function updateDroplist(command = "add", listName = "null") {
     parseListCollection(dropDownCont);
   }
   else{
-      const dropDownOption = dropDownCont.querySelector(
+    const dropDownOption = dropDownCont.querySelector(
         `[data-name="${listName}"]`);
-      dropDownOption.remove();
-  }
+        if(dropDownOption){
+          dropDownOption.remove();
+        }
+        else{
+          console.log("didn't find list option to delete");
+        }
+    }
 }

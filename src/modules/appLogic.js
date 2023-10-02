@@ -220,7 +220,7 @@ export function taskObjDist(context, selector = null) {
 }
 export function listTaskRemover(listName){
   storage.removeListTasks(listName);
-  return currContext;
+  // will need to update the index #s
 }
 
 export function tasksSortByDate() {
@@ -271,4 +271,5 @@ export function deleteListObj(listName){
 }
 export function deleteTaskObj(taskIndex){
   storage.rmTasksArr(taskIndex);
+  // update the index # of the task item
 }
