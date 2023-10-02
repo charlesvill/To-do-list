@@ -152,6 +152,9 @@ function getTaskColor(listName){
   return listName;
  }
  const list = getListInfo(listName);
+ if(!list.color){
+  return "None";
+ }
  return list.color;
 }
 
@@ -370,19 +373,17 @@ function removeList(e){
   // send message to the storage to remove list
   deleteListObj(lName);
   listTaskRemover(lName);
-  generateTaskLayout("Home");
-  taskObjDist("home");
-  createTaskForm();
+  refreshTasks("Home");
   // send signal to delete all list with the matching name
 }
 function removeTask(e){
   const task = e.currentTarget.parentElement;
+  // this dataset needs to be updated
   const {index} = task.dataset;
   task.remove();
   deleteTaskObj(index);
-
-
 }
+
 
 function taskclix(event) {
   const parent = event.currentTarget.parentElement;
@@ -401,28 +402,34 @@ function projectsView(e) {
   generateTaskLayout(projectName);
   updateCurrentContext("List", projectName);
   createTaskForm();
-  taskObjDist("list", projectName);
+  taskObjDist("List", projectName);
   updateDroplist();
 }
 function todayView() {
   generateTaskLayout("Today");
   updateCurrentContext("Today");
   createTaskForm();
-  taskObjDist("today_view");
+  taskObjDist("Today");
   updateDroplist();
 }
 function upcomingView() {
   generateTaskLayout("Upcoming");
   updateCurrentContext("Upcoming");
   createTaskForm();
-  taskObjDist("upcoming_view");
+  taskObjDist("Upcoming");
   updateDroplist();
 }
 function homeView() {
   generateTaskLayout("Home");
   updateCurrentContext("Home");
   createTaskForm();
-  taskObjDist("home");
+  taskObjDist("Home");
+  updateDroplist();
+}
+export function refreshTasks(currContext){
+  generateTaskLayout(currContext);
+  createTaskForm();
+  taskObjDist(currContext);
   updateDroplist();
 }
 export function amendForm(command, argument = "none", form) {

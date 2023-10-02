@@ -32,6 +32,7 @@ export default function Storage() {
     console.log(taskObj.array);
     console.log(taskObj);
     localStorage.setItem("tasksArr", JSON.stringify(taskObj));
+    // send a signal to update all the data-Index changes
   }
 
   function syncListChanges(listCollection){

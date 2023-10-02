@@ -4,7 +4,7 @@ import {
   isThisWeek,
   compareAsc,
 } from "date-fns";
-import { changeClass, elementBuilder, amendForm } from "./DomManager.js";
+import { changeClass, elementBuilder, amendForm, refreshTasks, } from "./DomManager.js";
 import Storage from "./Storage";
 
 let currContext = "Home";
@@ -34,7 +34,7 @@ function popListfromStorage() {
   }
 }
 function popTasksfromStorage() {
-  taskObjDist("home");
+  taskObjDist("Home");
 }
 
 export function addTask(description, date, list, priority = "Low") {
@@ -163,16 +163,16 @@ export function taskObjDist(context, selector = null) {
   const tasksArr = storage.retrieveTasksArr();
 
   switch (context) {
-    case "home":
+    case "Home":
       iterator();
       break;
-    case "list":
+    case "List":
       iterator();
       break;
-    case "today_view":
+    case "Today":
       todayIterator();
       break;
-    case "upcoming_view":
+    case "Upcoming":
       upcomingIterator();
       break;
     default:
@@ -185,7 +185,7 @@ export function taskObjDist(context, selector = null) {
 
       if (selector === null) {
         elementBuilder(currentObj);
-      } else if (currentObj[`${context}`] === selector) {
+      } else if (currentObj.list === selector) {
         elementBuilder(currentObj);
       }
     }
@@ -221,6 +221,7 @@ export function taskObjDist(context, selector = null) {
 export function listTaskRemover(listName){
   storage.removeListTasks(listName);
   // will need to update the index #s
+  refreshTasks(currContext);
 }
 
 export function tasksSortByDate() {
@@ -271,5 +272,5 @@ export function deleteListObj(listName){
 }
 export function deleteTaskObj(taskIndex){
   storage.rmTasksArr(taskIndex);
-  // update the index # of the task item
+  refreshTasks(currContext);
 }
