@@ -243,7 +243,6 @@ function submitTask(event) {
 
 function submitList(event) {
   event.preventDefault();
-  this.reset();
   const listName = document.getElementById("listName").value;
   const colorSelector = document.getElementById("listColor");
   let color = "none";

@@ -10,7 +10,7 @@ module.exports = {
 	},
 	plugins: [
     new HtmlWebpackPlugin({
-      title: 'Shigot-Tasks',
+      title: 'Shigoto-Tasks',
     }),
   ],	
     output: {
