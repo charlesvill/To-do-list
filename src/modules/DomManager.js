@@ -152,7 +152,7 @@ function getTaskColor(listName){
   return listName;
  }
  const list = getListInfo(listName);
- if(!list.color){
+ if(list.color === ""|| list.color === undefined){
   return "None";
  }
  return list.color;
@@ -238,10 +238,12 @@ function submitTask(event) {
 
   filterTaskSubmits(taskObj);
   closeTaskForm();
+  this.reset();
 }
 
 function submitList(event) {
   event.preventDefault();
+  this.reset();
   const listName = document.getElementById("listName").value;
   const colorSelector = document.getElementById("listColor");
   let color = "none";
