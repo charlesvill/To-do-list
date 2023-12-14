@@ -133,7 +133,6 @@ function createTaskForm() {
 function applyColor(e){
   // get reference to the actual color that was chosen from the classlist
   const colorChoice = e.currentTarget.getAttribute("data-color");
-  console.log("ther should be some shit happening her. ");
   // set the second class name of color selector to
   const colorSelector = document.getElementById("listColor");
   if (colorSelector.classList.length > 1){
